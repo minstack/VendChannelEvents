@@ -3,6 +3,7 @@ import tkinter.ttk as ttk
 import threading
 from tkinter.filedialog import askopenfilename
 import ControlUtil
+from tkinter import messagebox
 #from tkFileDialog import askopenfilename
 
 class VendChannelEventsGUI:
@@ -16,6 +17,7 @@ class VendChannelEventsGUI:
         self.BUTTONS = []
         self.__callback = callback
         self.root = root
+        self.title = "Vend Channel Events"
         if self.root is None:
             self.root = Tk()
             self.root.geometry("1420x700")
@@ -23,7 +25,7 @@ class VendChannelEventsGUI:
         #self.root.geometry("650x450")
             self.root.minsize(650,450)
         #self.root.resizable(0,0)
-            self.root.title("Vend Channel Events")
+            self.root.title(self.title)
             self.root.pack_propagate(0)
 
         header = Label(self.root, text="Channel Events", bd=1, font="San-Serif 18 bold", bg="#41B04B", fg="white")
@@ -125,18 +127,27 @@ class VendChannelEventsGUI:
         self.channelEvents = []
         self.chanEventDict = {}
 
-        headings = ["Created At", "Action", "Entity Type", "Entity ID", "Unwrapped Error"]
+        headings = ["created_at", "action", "entity_type", "entity_id", "unwrapped_error"]
 
         widths = {
-            "Created At" : 160,
-            "Action" : 280,
-            "Entity Type" : 150,
-            "Entity ID" : 300,
-            "Unwrapped Error" : 450
+            "created_at" : 160,
+            "action" : 280,
+            "entity_type" : 150,
+            "entity_id" : 300,
+            "unwrapped_error" : 450
         }
 
-        self.channelView = ttk.Treeview(mainFrame, show="headings", selectmode="browse")
-        self.channelView.grid(row=7, column=0, columnspan=5,rowspan=5, padx=0, pady=5)
+        frame = Frame(mainFrame)
+        frame.grid(row=7, column=0, columnspan=5,rowspan=5, padx=0, pady=5)
+
+        self.channelView = ttk.Treeview(frame, show="headings", selectmode="browse", height=6)
+        #self.channelView.grid(row=7, column=0, columnspan=5,rowspan=5, padx=0, pady=5)
+        self.channelView.pack(side='left')
+
+        vsb = ttk.Scrollbar(frame, orient='vertical', command=self.channelView.yview)
+        vsb.pack(side='right', fill='y')
+
+        self.channelView.configure(yscrollcommand=vsb.set)
         '''self.channelView.column("artistCat", stretch=0,  anchor=N)
         self.channelView.column("artistDisplay", stretch=0,  anchor=N)
         self.channelView.heading("artistCat", text="Artist CAT")
@@ -160,8 +171,8 @@ class VendChannelEventsGUI:
 
         style = ttk.Style()
         style.configure('Treeview', rowheight=80)
-        style.configure('Treeview.Heading', font=(None, 14))
-        style.configure('Treeview.Column', font=(None, 12))
+        style.configure('Treeview.Heading', font=(None, 15))
+        #style.configure('Treeview.Column', font=(None, 12))
 
         #csvHeader.grid(row=0, column=2)
         #self.channelBox.grid(row=7, column=0, columnspan=5,rowspan=5, padx=10, pady=5)
@@ -365,3 +376,12 @@ class VendChannelEventsGUI:
     def main(self):
         """ Main loop for this GUI. """
         self.root.mainloop()
+
+    def showMessageBox(self, title, message):
+        messagebox.showinfo(title, message)
+
+    def showError(self, title, message):
+        messagebox.showerror(title, message)
+
+    def setVersion(self, version):
+        self.root.title(f"{self.title} v{version}")
