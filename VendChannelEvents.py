@@ -1,6 +1,7 @@
 import csv
 from VendApi import *
 from VendChannelEventsGUI import *
+from GitHubApi import *
 import re
 import threading
 import queue
@@ -10,12 +11,19 @@ import traceback
 import os
 import time
 import textwrap
+import getpass
+
+VERSION_TAG = '1.0'
+
+gitApi = GitHubApi(owner='minstack', repo='VendChannelEvents', token='')
+USER = getpass.getuser()
 
 gui = None
 api = None
 retrieveFilepath = ""
 THREAD_COUNT = 1
 results = None
+
 
 def startProcess(bulkDelGui):
     """
@@ -27,7 +35,7 @@ def startProcess(bulkDelGui):
     gui = bulkDelGui
     if not gui.entriesHaveValues():
         ## error
-        gui.setStatus("Please have values for prefix, token and CSV...")
+        gui.setStatus("Please have values for prefix and token.")
         gui.setReadyState()
         return
 
@@ -41,24 +49,33 @@ def startProcess(bulkDelGui):
 
     gui.resetTreeview()
 
+    try:
 
-    api = VendApi(gui.getPrefix(), gui.getToken())
+        api = VendApi(gui.getPrefix(), gui.getToken())
 
-    params = getQueryParams(gui)
+        params = getQueryParams(gui)
 
-    channels = api.getChannels()
-    print(channels)
-    chanEventId = channels[0]['id']
-    channelEvents = api.getChannelEvents(chanEventId, params=params)
+        channels = api.getChannels()
 
-    #print(channelEvents)
+        if channels is None:
+            gui.setStatus("Could not retrieve channel. Please check prefix and token (expiry).")
+            gui.setReadyState()
+            return
+        print(channels)
+        chanEventId = channels[0]['id']
+        channelEvents = api.getChannelEvents(chanEventId, params=params)
 
-    chanEventVals = getChannelEvents(channelEvents)
+        #print(channelEvents)
 
-    displayEvents(chanEventVals)
+        chanEventVals = getChannelEvents(channelEvents)
 
-    #print(gui.getEventLevel())
-    gui.setReadyState()
+        displayEvents(chanEventVals)
+
+        #print(gui.getEventLevel())
+        gui.setReadyState()
+    except Exception as e:
+        issue = gitApi.createIssue(title=f"[{USER}]{str(e)}", body=traceback.format_exc(), assignees=['minstack'], labels=['bug']).json()
+        gui.showError(title="Crashed!", message=f"Dev notified and assigned to issue:\n{issue['url']}")
 
 def getQueryParams(gui):
 
@@ -176,7 +193,41 @@ def exportToCsv():
 
     cu.writeListToCSV(output=zipped, title='events_export', prefix=gui.getPrefix())
 
+def downloadUpdates(mainGui):
+
+
+    latestrelease = gitApi.getLatestReleaseJson()
+
+    tag = latestrelease.get('tag_name', None)
+
+    #no releases
+    if tag is None:
+        return False
+
+    if latestrelease['tag_name'] == VERSION_TAG:
+        return False
+
+    #download latest update
+    userdesktop = expanduser('~') + '/Desktop'
+    filename = gitApi.downloadLatestRelease(path=userdesktop, extract=True)
+    updatedescription = latestrelease['body']
+
+    mainGui.showMessageBox(title=f"Updates v{latestrelease['tag_name']}", \
+                            message=f"Downloaded latest version to your desktop: \
+                                        {filename[:-4]}\n\nYou may delete this version.\
+                                        \n\nUpdate Details:\n{updatedescription}")
+
+    return True
+
 if __name__ == "__main__":
-    gui = VendChannelEventsGUI(callback=startProcess)
-    gui.setExportCsvCommand(exportToCsv)
-    gui.main()
+    try:
+        gui = VendChannelEventsGUI(callback=startProcess)
+        gui.setExportCsvCommand(exportToCsv)
+        gui.setVersion(VERSION_TAG)
+
+        if not downloadUpdates(gui):
+            gui.main()
+
+    except Exception as e:
+        issue = gitApi.createIssue(title=f"[{USER}]{str(e)}", body=traceback.format_exc(), assignees=['minstack'], labels=['bug']).json()
+        gui.showError(title="Crashed!", message=f"Dev notified and assigned to issue:\n{issue['url']}")
