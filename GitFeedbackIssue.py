@@ -4,6 +4,7 @@ from tkinter.scrolledtext import ScrolledText
 from tkinter import messagebox
 import tkinter.ttk as ttk
 import getpass
+import json
 
 def submitIssue(inputs, root):
     label = inputs['label'].get()
@@ -11,11 +12,23 @@ def submitIssue(inputs, root):
     email = inputs['email'].get()
     feedback = inputs['feedback'].get(1.0, END)
 
-    gitApi = GitHubApi(owner='minstack', repo='VendChannelEvents', token='')
-    issue = gitApi.createIssue(title=f"[{label}]{user}", body=f"{feedback}\n{email}", assignees=["minstack"], labels=[f"{label.lower()}"]).json()
+    creds = getData()
 
+    #gitApi = GitHubApi(owner='minstack', repo='VendChannelEvents', token='')
+    issue = gitApi.createIssue(title=f"[{label}]{user}", body=f"{feedback}\n{email}", assignees=["minstack"], labels=[f"{label.lower()}"]).json()
+    print(issue)
     if issue is not None:
-        displayMessage(f"Thank you for your submission!\nThe {label} was submitted at\n{issue['url']}", root)
+        displayMessage(f"Thank you for your submission!\nThe {label} was submitted at\n{issue['html_url']}", root)
+
+def getData():
+    with open('data.json') as f:
+        data = json.load(f)
+
+    global gitApi
+
+    print(f"{data['owner']}: {data['repo']} : {data['ghtoken']}")
+
+    gitApi = GitHubApi(owner=data['owner'], repo=data['repo'], token=data['ghtoken'])
 
 def displayMessage(message, root):
     messagebox.showinfo("Submitted!", message)
