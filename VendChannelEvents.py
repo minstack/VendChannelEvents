@@ -15,7 +15,7 @@ import getpass
 import json
 import GitFeedbackIssue as gitfeedback
 
-VERSION_TAG = '1.0'
+VERSION_TAG = '1.1'
 
 #gitApi = None
 USER = getpass.getuser()
