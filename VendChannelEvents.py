@@ -12,11 +12,11 @@ import os
 import time
 import textwrap
 import getpass
-import GitFeedbackIssue as gitsubmit
+import json
 
 VERSION_TAG = '1.0'
 
-gitApi = GitHubApi(owner='minstack', repo='VendChannelEvents', token='')
+#gitApi = None
 USER = getpass.getuser()
 
 gui = None
@@ -208,19 +208,26 @@ def downloadUpdates(mainGui):
 
     return True
 
-def openFeedbackDialog():
-    gitsubmit.main()
+def loadData():
+
+    with open('data.json') as f:
+        data = json.load(f)
+
+    global gitApi
+
+    print(f"{data['owner']}: {data['repo']} : {data['ghtoken']}")
+
+    gitApi = GitHubApi(owner=data['owner'], repo=data['repo'], token=data['ghtoken'])
 
 if __name__ == "__main__":
+    loadData()
     try:
         gui = VendChannelEventsGUI(callback=startProcess)
         gui.setExportCsvCommand(exportToCsv)
         gui.setVersion(VERSION_TAG)
 
         if not downloadUpdates(gui):
-            gui.setFeedBackCommand(openFeedbackDialog)
             gui.main()
-
 
     except Exception as e:
         issue = gitApi.createIssue(title=f"[{USER}]{str(e)}", body=traceback.format_exc(), assignees=['minstack'], labels=['bug']).json()
