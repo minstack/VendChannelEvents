@@ -124,21 +124,7 @@ def displayEvents(eventVals):
 
 
     gui.addRowsToTreeview(zippedList)
-    '''
-    length = len(eventVals[attributes[0]])
 
-    i = 0
-    while i < length:
-        line = ""
-
-        for a in attributes:
-            val = eventVals[a][i]
-            line += f"{val}\t\t"
-
-        line = line[:-1] #remove last tab character
-
-        gui.addEventToList(line)
-        i += 1'''
 
 def getChannelEvents(channelEvents):
 
@@ -191,7 +177,9 @@ def exportToCsv():
                     results['entity_id'], \
                     results['unwrapped_error'])
 
-    cu.writeListToCSV(output=zipped, title='events_export', prefix=gui.getPrefix())
+    filepath = cu.writeListToCSV(output=zipped, title='events_export', prefix=gui.getPrefix())
+
+    gui.setStatus(f"Exported to {filepath}.")
 
 def downloadUpdates(mainGui):
 
