@@ -53,12 +53,6 @@ class VendChannelEventsGUI:
         lblToken = Label(mainFrame, text="Token:", font="Helvetica 14 bold")
         lblToken.grid(row=2, column=0, sticky=E)
 
-        #lblCsv = Label(mainFrame, text="CSV File:", font="Helvetica 14 bold")
-        #lblCsv.grid(row=3, column=0, sticky=E)
-
-
-
-
         #textboxes
         self.txtPrefix = Entry(mainFrame)
         self.txtToken = Entry(mainFrame)
@@ -75,7 +69,7 @@ class VendChannelEventsGUI:
         lblEntityType = Label(mainFrame, text="Entity Type:", font="Helvetica 14 bold")
         lblEntityType.grid(row=1, column=1, sticky=E)
         self.strEntityType = StringVar()
-        self.cboEntityType = ttk.Combobox(mainFrame, values = ("all", "product", "product_ingress", "sale"), state='readonly', textvariable=self.strEntityType, width=10)
+        self.cboEntityType = ttk.Combobox(mainFrame, values = ("all", "product","product_inventory", "product_ingress", "sale"), state='readonly', textvariable=self.strEntityType, width=10)
         self.cboEntityType.set("product")
         self.cboEntityType.grid(row=1, column=2, sticky=W)
 
@@ -99,24 +93,6 @@ class VendChannelEventsGUI:
 
         self.btnExportCsv = Button(mainFrame, text="Export CSV")
         self.btnExportCsv.grid(row=3, column=4, pady=10, sticky=E)
-
-        '''
-        radioFrame = Frame(mainFrame)
-        radioFrame.grid(row=4, column=1)
-
-
-        self.entityType = StringVar()
-        custRadio = Radiobutton(radioFrame, text="Customers", value='Customers', variable=self.entityType, command=self.__switchEntityType)
-        custRadio.invoke()
-        custRadio.pack(side=LEFT)
-        prodRadio = Radiobutton(radioFrame, text="Products", value='Products', variable=self.entityType, command=self.__switchEntityType)
-        #prodRadio.configure(state=DISABLED)
-        prodRadio.pack()
-
-        self.entityToRadio = {
-            'Customers' : custRadio,
-            'Products' : prodRadio
-        }'''
 
         ControlUtil.addControl(self.BUTTONS, self.btnGetChannels, self.btnReset)
 
@@ -148,10 +124,6 @@ class VendChannelEventsGUI:
         vsb.pack(side='right', fill='y')
 
         self.channelView.configure(yscrollcommand=vsb.set)
-        '''self.channelView.column("artistCat", stretch=0,  anchor=N)
-        self.channelView.column("artistDisplay", stretch=0,  anchor=N)
-        self.channelView.heading("artistCat", text="Artist CAT")
-        self.channelView.heading("artistDisplay", text="Artist Display")'''
 
         self.channelView['columns'] = headings
 
@@ -159,40 +131,10 @@ class VendChannelEventsGUI:
             self.channelView.heading(h, text=h)
             self.channelView.column(h, width=widths[h], anchor=NW)
 
-
-
-        '''
-        self.channelBox = Listbox(mainFrame, \
-                                    listvariable=self.channelEvents, \
-                                    width=80, \
-                                    height=10, \
-                                    bd=0.5, \
-                                    selectmode='single')'''
-
         style = ttk.Style()
         style.configure('Treeview', rowheight=80)
         style.configure('Treeview.Heading', font=(None, 15))
-        #style.configure('Treeview.Column', font=(None, 12))
 
-        #csvHeader.grid(row=0, column=2)
-        #self.channelBox.grid(row=7, column=0, columnspan=5,rowspan=5, padx=10, pady=5)
-        '''
-        headers = "created_at\taction\tentity_type\tentity_id\tunwrapped_error"
-        lblColHeaders = Label(mainFrame, text=headers, font="Helvetica 14 bold")
-        lblColHeaders.grid(row=6, column=0, columnspan=5)
-
-        csvFrame = Frame(mainFrame, padx=10)
-
-        csvHeader = Label(csvFrame, text="CSV Files", font="Helvetica 14 bold")
-        csvHeader.pack(side=LEFT)
-
-        csvFrame.grid(row=4, column=2, sticky=E)
-        self.btnOpenCsvDialog = Button(csvFrame, text="+", font="Helvetica 14 bold", command=self.openFile, width=3)
-        self.btnOpenCsvDialog.pack(side=LEFT)
-        self.btnDeleteFile = Button(csvFrame, text="-", font="Helvetica 14 bold", command=self.deleteFileFromList, width=3)
-        self.btnDeleteFile.pack()
-
-        ControlUtil.addControl(self.BUTTONS, self.btnOpenCsvDialog, self.btnDeleteFile)'''
 
     def __loadCheckListControl__(self, mainFrame):
         """
