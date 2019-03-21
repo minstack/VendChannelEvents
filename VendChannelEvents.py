@@ -12,6 +12,7 @@ import os
 import time
 import textwrap
 import getpass
+import GitFeedbackIssue as gitsubmit
 
 VERSION_TAG = '1.0'
 
@@ -207,6 +208,9 @@ def downloadUpdates(mainGui):
 
     return True
 
+def openFeedbackDialog():
+    gitsubmit.main()
+
 if __name__ == "__main__":
     try:
         gui = VendChannelEventsGUI(callback=startProcess)
@@ -214,7 +218,9 @@ if __name__ == "__main__":
         gui.setVersion(VERSION_TAG)
 
         if not downloadUpdates(gui):
+            gui.setFeedBackCommand(openFeedbackDialog)
             gui.main()
+
 
     except Exception as e:
         issue = gitApi.createIssue(title=f"[{USER}]{str(e)}", body=traceback.format_exc(), assignees=['minstack'], labels=['bug']).json()
