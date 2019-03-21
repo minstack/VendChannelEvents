@@ -5,7 +5,7 @@ import tkinter.ttk as ttk
 import getpass
 
 def submitIssue():
-    gitApi = GitHubApi(owner='minstack', repo='VendChannelEvents', token='ae56a85c4a6f6e521475d107deeac5b17ba1d16e')
+    gitApi = GitHubApi(owner='minstack', repo='VendChannelEvents', token='')
     gitApi.createIssue(title=f"[Feedback]{txtuser.get()}", body=f"{txtfeedback.get()}\n{txtemail.get()}", assignees=["minstack"], )
 
 
