@@ -13,6 +13,7 @@ import time
 import textwrap
 import getpass
 import json
+import GitFeedbackIssue as gitfeedback
 
 VERSION_TAG = '1.0'
 
@@ -76,7 +77,7 @@ def startProcess(bulkDelGui):
         gui.setReadyState()
     except Exception as e:
         issue = gitApi.createIssue(title=f"[{USER}]{str(e)}", body=traceback.format_exc(), assignees=['minstack'], labels=['bug']).json()
-        gui.showError(title="Crashed!", message=f"Dev notified and assigned to issue:\n{issue['url']}")
+        gui.showError(title="Crashed!", message=f"Dev notified and assigned to issue:\n{issue['html_url']}")
 
 def getQueryParams(gui):
 
@@ -215,9 +216,13 @@ def loadData():
 
     global gitApi
 
-    print(f"{data['owner']}: {data['repo']} : {data['ghtoken']}")
+    #print(f"{data['owner']}: {data['repo']} : {data['ghtoken']}")
 
     gitApi = GitHubApi(owner=data['owner'], repo=data['repo'], token=data['ghtoken'])
+
+def openFeedbackDialog():
+    gitfeedback.main()
+
 
 if __name__ == "__main__":
     loadData()
@@ -227,8 +232,9 @@ if __name__ == "__main__":
         gui.setVersion(VERSION_TAG)
 
         if not downloadUpdates(gui):
+            gui.setFeedBackCommand(openFeedbackDialog)
             gui.main()
 
     except Exception as e:
         issue = gitApi.createIssue(title=f"[{USER}]{str(e)}", body=traceback.format_exc(), assignees=['minstack'], labels=['bug']).json()
-        gui.showError(title="Crashed!", message=f"Dev notified and assigned to issue:\n{issue['url']}")
+        gui.showError(title="Crashed!", message=f"Dev notified and assigned to issue:\n{issue['html_url']}")
