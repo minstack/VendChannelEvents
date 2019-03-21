@@ -1,42 +1,66 @@
 from GitHubApi import *
 from tkinter import *
 from tkinter.scrolledtext import ScrolledText
+from tkinter import messagebox
 import tkinter.ttk as ttk
 import getpass
 
-def submitIssue():
+def submitIssue(inputs, root):
+    label = inputs['label'].get()
+    user = inputs['user'].get()
+    email = inputs['email'].get()
+    feedback = inputs['feedback'].get(1.0, END)
+
     gitApi = GitHubApi(owner='minstack', repo='VendChannelEvents', token='')
-    gitApi.createIssue(title=f"[Feedback]{txtuser.get()}", body=f"{txtfeedback.get()}\n{txtemail.get()}", assignees=["minstack"], )
+    issue = gitApi.createIssue(title=f"[{label}]{user}", body=f"{feedback}\n{email}", assignees=["minstack"], labels=[f"{label.lower()}"]).json()
 
+    if issue is not None:
+        displayMessage(f"Thank you for your submission!\nThe {label} was submitted at\n{issue['url']}", root)
 
-root = Tk()
-root.geometry("300x400")
-root.call('tk','scaling', 2.0)
+def displayMessage(message, root):
+    messagebox.showinfo("Submitted!", message)
 
-lbluser = Label(root, text="User")
-lblemail = Label(root, text="Email")
-lblfeedback = Label(root, text="Feedback")
-lbllabel = Label(root, text="Type")
+    root.destroy()
 
+def main():
+    root = Tk()
+    root.geometry("350x500")
+    root.call('tk','scaling', 2.0)
+    root.title("Submit Feedback")
 
-txtuser = Entry(root, width=100)
-txtuser.insert(0, getpass.getuser())
-txtemail = Entry(root, width=100)
-txtfeedback = Text(root, width=100, bd=1)
-#txtfeedback = ScrolledText(root, width=100, bd=1)
-cboLabel = ttk.Combobox(root, values=("Feedback", "Enhancement", "Question", "Bug"))
+    lbluser = Label(root, text="User")
+    lblemail = Label(root, text="Email")
+    lblfeedback = Label(root, text="Feedback")
+    lbllabel = Label(root, text="Type")
 
-lbluser.pack(fill=X)
-txtuser.pack(padx=5)
-lblemail.pack(fill=X)
-txtemail.pack(padx=5)
-lbllabel.pack(fill=X)
-cboLabel.pack(padx=5, fill=X)
-lblfeedback.pack(fill=X)
-txtfeedback.pack(padx=5)
+    frame = Frame(root, height=100)
 
+    txtuser = Entry(root, width=100)
+    txtuser.insert(0, getpass.getuser())
+    txtemail = Entry(root, width=100)
+    txtfeedback = ScrolledText(root, width=100, height=10)
+    #txtfeedback = ScrolledText(root, width=100, bd=1)
+    strLabel = StringVar()
+    cboLabel = ttk.Combobox(root, values=("Feedback", "Enhancement", "Question", "Bug"), textvariable=strLabel, state='readonly')
+    cboLabel.current(0)
 
-btnSubmit = Button(root, text="Submit", command=submitIssue)
-btnSubmit.pack()
+    lbluser.pack(fill=X)
+    txtuser.pack(padx=5)
+    lblemail.pack(fill=X)
+    txtemail.pack(padx=5)
+    lbllabel.pack(fill=X)
+    cboLabel.pack(padx=5, fill=X)
+    lblfeedback.pack(fill=X)
+    txtfeedback.pack(padx=5)
 
-root.mainloop()
+    inputs = {
+        'user' : txtuser,
+        'email' : txtemail,
+        'label' : cboLabel,
+        'feedback' : txtfeedback
+    }
+
+    btnSubmit = Button(root, text="Submit", command=lambda : submitIssue(inputs, root))
+    btnSubmit.pack(side=BOTTOM, pady=10)
+
+    root.mainloop()
