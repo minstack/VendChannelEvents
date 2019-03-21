@@ -94,6 +94,9 @@ class VendChannelEventsGUI:
         self.btnExportCsv = Button(mainFrame, text="Export CSV")
         self.btnExportCsv.grid(row=3, column=4, pady=10, sticky=E)
 
+        self.btnSubmitFeedback = Button(mainFrame, text="Submit Feedback", font="Helvetica 8")
+        self.btnSubmitFeedback.grid(row=1, column=4, sticky=E)
+
         ControlUtil.addControl(self.BUTTONS, self.btnGetChannels, self.btnReset)
 
     def __loadChannelResultListBox__(self, mainFrame):
@@ -253,6 +256,9 @@ class VendChannelEventsGUI:
 
     def disableCsvButtons(self):
         ControlUtil.setControlState([self.btnOpenCsvDialog, self.btnDeleteFile], DISABLED)
+
+    def setFeedBackCommand(self, function):
+        self.btnSubmitFeedback.configure(command=function)
 
     def addRowsToTreeview(self, zippedList):
 
