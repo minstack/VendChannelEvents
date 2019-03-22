@@ -14,6 +14,7 @@ import textwrap
 import getpass
 import json
 import GitFeedbackIssue as gitfeedback
+from os.path import expanduser
 
 VERSION_TAG = '1.1'
 
@@ -194,7 +195,7 @@ def downloadUpdates(mainGui):
     if tag is None:
         return False
 
-    if latestrelease['tag_name'] == VERSION_TAG:
+    if latestrelease['tag_name'] <= VERSION_TAG:
         return False
 
     #download latest update
