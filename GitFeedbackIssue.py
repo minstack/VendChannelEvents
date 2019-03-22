@@ -14,7 +14,6 @@ def submitIssue(inputs, root):
 
     creds = getData()
 
-    #gitApi = GitHubApi(owner='minstack', repo='VendChannelEvents', token='')
     issue = gitApi.createIssue(title=f"[{label}]{user}", body=f"{feedback}\n{email}", assignees=["minstack"], labels=[f"{label.lower()}"]).json()
     print(issue)
     if issue is not None:
@@ -34,6 +33,10 @@ def displayMessage(message, root):
     messagebox.showinfo("Submitted!", message)
 
     root.destroy()
+
+def setGitApi(api):
+    global gitApi
+    gitApi = api
 
 def main():
     root = Tk()
