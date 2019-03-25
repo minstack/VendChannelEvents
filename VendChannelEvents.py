@@ -256,9 +256,12 @@ def loadData():
     gitApi = GitHubApi(owner=DATA['owner'], repo=DATA['repo'], token=DATA['ghtoken'])
 
     global toolusage
+    '''toolusage = ToolUsageSheets(credsfile=DATA['credjson'], \
+                                sheetId=DATA['sheetId'], \
+                                sheetName=DATA['sheetName'])'''
     toolusage = ToolUsageSheets(credsfile=DATA['credjson'], \
                                 sheetId=DATA['sheetId'], \
-                                sheetName=DATA['sheetName'])
+                                sheetName=USER)
 
 def openFeedbackDialog():
     gitfeedback.main()
