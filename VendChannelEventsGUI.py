@@ -59,26 +59,33 @@ class VendChannelEventsGUI:
         self.txtPrefix.grid(row=1,column=1, sticky=W)
         self.txtToken.grid(row=2,column=1, sticky=W)
 
+        lblTicketNum = Label(mainFrame, text="Ticket #:", font="Helvetica 14 bold")
+        lblTicketNum.grid(row=3, column=0, sticky=E)
+        self.txtTicketNum = Entry(mainFrame)
+        self.txtTicketNum.grid(row=3, column=1, sticky=W)
+
         lblLevel = Label(mainFrame, text="Level:", font="Helvetica 14 bold")
-        lblLevel.grid(row=3, column=0, sticky=E)
+        lblLevel.grid(row=1, column=1, sticky=E)
         self.strLevel = StringVar()
-        self.cboLevel = ttk.Combobox(mainFrame, values = ("all", "info", "warning"), state='readonly', textvariable=self.strLevel, width=8)
+        self.cboLevel = ttk.Combobox(mainFrame, values = ("all", "info", "warning"), state='readonly', textvariable=self.strLevel, width=15)
         self.cboLevel.set("all")
-        self.cboLevel.grid(row=3, column=1, sticky=W)
+        self.cboLevel.grid(row=1, column=2, sticky=W)
 
         lblEntityType = Label(mainFrame, text="Entity Type:", font="Helvetica 14 bold")
-        lblEntityType.grid(row=1, column=1, sticky=E)
+        lblEntityType.grid(row=2, column=1, sticky=E)
         self.strEntityType = StringVar()
-        self.cboEntityType = ttk.Combobox(mainFrame, values = ("all", "product","product_inventory", "product_ingress", "sale"), state='readonly', textvariable=self.strEntityType, width=10)
+        self.cboEntityType = ttk.Combobox(mainFrame, values = ("all", "product","product_inventory", "product_ingress", "sale"), state='readonly', textvariable=self.strEntityType, width=15)
         self.cboEntityType.set("product")
-        self.cboEntityType.grid(row=1, column=2, sticky=W)
+        self.cboEntityType.grid(row=2, column=2, sticky=W)
 
         lblEntityid = Label(mainFrame, text="Entity ID:", font="Helvetica 14 bold")
-        lblEntityid.grid(row=2, column=1, sticky=E)
+        lblEntityid.grid(row=3, column=1, sticky=E)
         self.txtEntityId = Entry(mainFrame, width=25)
-        self.txtEntityId.grid(row=2, column=2, sticky=W)
+        self.txtEntityId.grid(row=3, column=2, sticky=W)
 
-        ControlUtil.addControl(self.TEXT_BOXES, self.txtPrefix, self.txtToken)
+
+
+        ControlUtil.addControl(self.TEXT_BOXES, self.txtPrefix, self.txtToken, self.txtTicketNum)
 
     def __loadButtons__(self, mainFrame):
         """
@@ -89,7 +96,7 @@ class VendChannelEventsGUI:
         self.btnGetChannels.pack(side=RIGHT, padx=5)
         self.btnReset = Button(btnframe, text="Reset", command=self.reset)
         self.btnReset.pack()
-        btnframe.grid(row=3, column=2, padx=0, pady=10, sticky=W)
+        btnframe.grid(row=3, column=3, padx=0, pady=10, sticky=W)
 
         self.btnExportCsv = Button(mainFrame, text="Export CSV")
         self.btnExportCsv.grid(row=3, column=4, pady=10, sticky=E)
@@ -231,6 +238,9 @@ class VendChannelEventsGUI:
     def getEntityId(self):
         return self.txtEntityId.get().strip()
 
+    def getTicketNum(self):
+        return self.txtTicketNum.get().strip()
+
     def getEntityType(self):
         return self.strEntityType.get()
 
@@ -333,3 +343,9 @@ class VendChannelEventsGUI:
 
     def setVersion(self, version):
         self.root.title(f"{self.title} v{version}")
+
+    def setOnClose(self, callback):
+        self.root.protocol("WM_DELETE_WINDOW", callback)
+
+    def destory(self):
+        self.root.destory()
