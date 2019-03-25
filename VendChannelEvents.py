@@ -18,7 +18,7 @@ from os.path import expanduser
 from datetime import datetime
 from ToolUsageSheets import *
 
-VERSION_TAG = '1.1'
+VERSION_TAG = '1.2'
 APP_FUNCTION = 'VendChannelEvents'
 ACTIONS = []
 
@@ -84,7 +84,13 @@ def startProcess(bulkDelGui):
         gui.setReadyState()
     except Exception as e:
         issue = gitApi.createIssue(title=f"[{USER}]{str(e)}", body=traceback.format_exc(), assignees=['minstack'], labels=['bug']).json()
-        gui.showError(title="Crashed!", message=f"Dev notified and assigned to issue:\n{issue['html_url']}")
+        #gui.showError(title="Crashed!", message=f"Dev notified and assigned to issue:\n{issue['html_url']}")
+
+        if issue is not None and issue.get('html_url', None is not None):
+            gui.showError(title="Crashed!", message=f"Dev notified and assigned to issue: {issue['html_url']}")
+        else:
+            gui.showError(f"Something went terribly wrong.\nCould not notify dev.\n{traceback.format_exc()}")
+
 
 def addActionEvents(user, app, date):
 
@@ -277,4 +283,9 @@ if __name__ == "__main__":
 
     except Exception as e:
         issue = gitApi.createIssue(title=f"[{USER}]{str(e)}", body=traceback.format_exc(), assignees=['minstack'], labels=['bug']).json()
-        gui.showError(title="Crashed!", message=f"Dev notified and assigned to issue:\n{issue['html_url']}")
+        #gui.showError(title="Crashed!", message=f"Dev notified and assigned to issue:\n{issue['html_url']}")
+
+        if issue is not None and issue.get('html_url', None is not None):
+            gui.showError(title="Crashed!", message=f"Dev notified and assigned to issue: {issue['html_url']}")
+        else:
+            gui.showError(f"Something went terribly wrong.\nCould not notify dev.\n{traceback.format_exc()}")
