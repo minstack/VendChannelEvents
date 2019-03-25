@@ -15,8 +15,12 @@ import getpass
 import json
 import GitFeedbackIssue as gitfeedback
 from os.path import expanduser
+from datetime import datetime
+from ToolUsageSheets import *
 
 VERSION_TAG = '1.1'
+APP_FUNCTION = 'VendChannelEvents'
+ACTIONS = []
 
 #gitApi = None
 USER = getpass.getuser()
@@ -38,7 +42,7 @@ def startProcess(bulkDelGui):
     gui = bulkDelGui
     if not gui.entriesHaveValues():
         ## error
-        gui.setStatus("Please have values for prefix and token.")
+        gui.setStatus("Please have values for prefix / token / ticket #.")
         gui.setReadyState()
         return
 
@@ -74,11 +78,34 @@ def startProcess(bulkDelGui):
 
         displayEvents(chanEventVals)
 
+        addActionEvents(USER, APP_FUNCTION, str(datetime.now()))
+
         #print(gui.getEventLevel())
         gui.setReadyState()
     except Exception as e:
         issue = gitApi.createIssue(title=f"[{USER}]{str(e)}", body=traceback.format_exc(), assignees=['minstack'], labels=['bug']).json()
         gui.showError(title="Crashed!", message=f"Dev notified and assigned to issue:\n{issue['html_url']}")
+
+def addActionEvents(user, app, date):
+
+    details = f"Level:{gui.getEventLevel()},EntityType:{gui.getEntityType()},EntityId:{gui.getEntityId()}"
+
+    toolusage.writeRow(**{
+        "user" : user,
+        "appfunction" : app,
+        "completedon" : date,
+        "prefix" : gui.getPrefix(),
+        "ticketnum" : gui.getTicketNum(),
+        "details" : details
+    })
+    '''toolusage.saveRowLocally(**{
+        "user" : user,
+        "appfunction" : app,
+        "completedon" : date,
+        "prefix" : gui.getPrefix(),
+        "ticketnum" : "3234234"
+    })'''
+
 
 def getQueryParams(gui):
 
@@ -180,7 +207,7 @@ def exportToCsv():
                     results['entity_id'], \
                     results['unwrapped_error'])
 
-    filepath = cu.writeListToCSV(output=zipped, title='events_export', prefix=gui.getPrefix())
+    filepath = cu.writeListToCSV(output=zipped, title=f'channels-ticket{gui.getTicketNum()}', prefix=gui.getPrefix())
 
     gui.setStatus(f"Exported to {filepath}.")
 
@@ -211,28 +238,40 @@ def downloadUpdates(mainGui):
     return True
 
 def loadData():
+    global DATA
 
     with open('data.json') as f:
-        data = json.load(f)
+        DATA = json.load(f)
 
     global gitApi
 
     #print(f"{data['owner']}: {data['repo']} : {data['ghtoken']}")
 
-    gitApi = GitHubApi(owner=data['owner'], repo=data['repo'], token=data['ghtoken'])
+    gitApi = GitHubApi(owner=DATA['owner'], repo=DATA['repo'], token=DATA['ghtoken'])
+
+    global toolusage
+    toolusage = ToolUsageSheets(credsfile=DATA['credjson'], \
+                                sheetId=DATA['sheetId'], \
+                                sheetName=DATA['sheetName'])
 
 def openFeedbackDialog():
     gitfeedback.main()
+
+def onClose():
+    toolusage.writeLocallySavedRows()
+    gui.destroy()
 
 
 if __name__ == "__main__":
     loadData()
     try:
+        #global gui
         gui = VendChannelEventsGUI(callback=startProcess)
         gui.setExportCsvCommand(exportToCsv)
         gui.setVersion(VERSION_TAG)
 
         if not downloadUpdates(gui):
+            #gui.setOnClose(onClose)
             gui.setFeedBackCommand(openFeedbackDialog)
             gui.main()
 
